@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+@theme {
+    /* Paleta "Vértice Auto Center": azul-marinho profissional + cobre/âmbar como cor de destaque */
+    --color-ink: #0d1321;
+    --color-panel: #141b2e;
+    --color-panel-2: #1c2540;
+    --color-line: #2c3654;
+    --color-bone: #e8ecf5;
+    --color-bone-bright: #ffffff;
+    --color-steel: #8b98b8;
+    --color-burnt-red: #d97706;
+    --color-garage-black: #070b14;
+    --color-go: #22c55e;
+    --font-heading: "Poppins", "Segoe UI", Arial, sans-serif;
+    --font-sans: "Work Sans", "Segoe UI", Arial, sans-serif;
+}
+
+:root {
+    color-scheme: dark;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body,
+#root {
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    background: var(--color-garage-black);
+    color: var(--color-bone);
+    font-family: var(--font-sans);
+}
+
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
+
+.heading {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1.1;
+    text-transform: uppercase;
+}
+
+.stencil {
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    line-height: 1.5;
+    text-transform: uppercase;
+}
+
+.grain {
+    isolation: isolate;
+}
+
+.grain::before {
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+    inset: 0;
+    background-image: repeating-linear-gradient(0deg, rgb(255 255 255 / 1.2%) 0, rgb(255 255 255 / 1.2%) 1px, transparent 1px, transparent 3px);
+    content: "";
+}
+
+::selection {
+    background: var(--color-burnt-red);
+    color: var(--color-bone-bright);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
