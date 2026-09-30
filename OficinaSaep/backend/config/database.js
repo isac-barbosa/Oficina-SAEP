@@ -7,7 +7,7 @@ export const db = mysql.createPool({
     host: process.env.DB_HOST || 'localhost',
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || 'senai',
-    database: process.env.DB_NAME || 'saep_db'
+    database: process.env.DB_NAME || 'oficina_db'
 }); 
 
 export default db;

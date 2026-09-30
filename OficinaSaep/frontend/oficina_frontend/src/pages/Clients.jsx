@@ -1,18 +1,17 @@
 import { useMemo, useState } from "react";
-import { Eye, Pen as Pencil, Plus, Search, Trash2 } from "reicon-react";
+import { Eye, Pen as Pencil, Plus, Trash2 } from "reicon-react";
 
 import { AppLayout } from "@/components/garage/layout";
 import { Reveal } from "@/components/garage/motion";
 import { ConfirmDialog, Modal } from "@/components/garage/overlay";
 import {
+    Avatar,
     Button,
     Card,
-    Cell,
     EmptyState,
     Input,
-    Row,
+    SearchBar,
     SectionTitle,
-    Table,
 } from "@/components/garage/ui";
 import { maskCpf } from "@/lib/garage-data";
 import { useGarage } from "@/lib/garage-store";
@@ -67,17 +66,13 @@ export default function Clients() {
             }
         >
             <Reveal>
-                <Card className="mb-6 flex items-center gap-3 px-4 py-3">
-                    <Search className="h-4 w-4 text-steel" />
-
-                    <input
-                        aria-label="Pesquisar clientes"
-                        value={busca}
-                        onChange={(e) => setBusca(e.target.value)}
-                        placeholder="Pesquisar por nome, e-mail ou telefone"
-                        className="w-full bg-transparent text-sm text-bone placeholder:text-steel/70 focus:outline-none"
-                    />
-                </Card>
+                <SearchBar
+                    className="mb-8 max-w-xl"
+                    label="Pesquisar clientes"
+                    value={busca}
+                    onChange={setBusca}
+                    placeholder="Pesquisar por nome, e-mail ou telefone"
+                />
 
                 <SectionTitle
                     title="Lista de clientes"
@@ -90,25 +85,46 @@ export default function Clients() {
                         description="Ajuste a busca ou cadastre um novo cliente."
                     />
                 ) : (
-                    <Table head={["Nome", "CPF", "Telefone", "E-mail", "Veículos", ""]}>
-                        {lista.map((c) => (
-                            <Row key={c.id}>
-                                <Cell className="font-medium">{c.nome}</Cell>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                        {lista.map((c) => {
+                            const total = vehicles.filter(
+                                (v) => v.clientId === c.id
+                            ).length;
 
-                                <Cell className="font-mono text-xs text-steel">
-                                    {maskCpf(c.cpf)}
-                                </Cell>
+                            return (
+                                <Card key={c.id} interactive className="flex flex-col p-5">
+                                    <div className="flex items-center gap-3">
+                                        <Avatar name={c.nome} className="h-12 w-12" />
 
-                                <Cell className="text-bone/80">{c.telefone}</Cell>
+                                        <div className="min-w-0">
+                                            <p className="truncate font-medium text-bone">
+                                                {c.nome}
+                                            </p>
 
-                                <Cell className="text-bone/80">{c.email}</Cell>
+                                            <p className="font-mono text-xs text-steel">
+                                                {maskCpf(c.cpf)}
+                                            </p>
+                                        </div>
+                                    </div>
 
-                                <Cell className="text-bone/80">
-                                    {vehicles.filter((v) => v.clientId === c.id).length}
-                                </Cell>
+                                    <dl className="mt-5 space-y-2 text-sm">
+                                        <div className="flex justify-between gap-3">
+                                            <dt className="text-steel">Telefone</dt>
+                                            <dd className="truncate text-bone/90">{c.telefone}</dd>
+                                        </div>
 
-                                <Cell className="text-right">
-                                    <div className="flex justify-end gap-1">
+                                        <div className="flex justify-between gap-3">
+                                            <dt className="text-steel">E-mail</dt>
+                                            <dd className="truncate text-bone/90">{c.email}</dd>
+                                        </div>
+
+                                        <div className="flex justify-between gap-3">
+                                            <dt className="text-steel">Veículos</dt>
+                                            <dd className="text-bone/90">{total}</dd>
+                                        </div>
+                                    </dl>
+
+                                    <div className="mt-5 flex justify-end gap-1 border-t border-line/60 pt-3">
                                         <Button
                                             variant="ghost"
                                             size="icon"
@@ -136,10 +152,10 @@ export default function Clients() {
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
                                     </div>
-                                </Cell>
-                            </Row>
-                        ))}
-                    </Table>
+                                </Card>
+                            );
+                        })}
+                    </div>
                 )}
             </Reveal>
 
@@ -276,7 +292,7 @@ export default function Clients() {
 
 function Field({ label, value }) {
     return (
-        <div className="border-b border-line/60 pb-2">
+        <div className="rounded-xl border border-line/60 bg-ink/40 px-4 py-3">
             <p className="stencil text-steel">{label}</p>
             <p className="mt-1 text-bone">{value}</p>
         </div>

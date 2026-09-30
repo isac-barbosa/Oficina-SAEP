@@ -1,40 +1,41 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
 import {
     Car,
     ClipboardList,
     Gauge,
     Logout,
-    Menu,
     Settings2,
     User,
-    X,
 } from "reicon-react";
 
 import { BrandMark } from "./BrandMark";
+import { Avatar } from "./ui";
 import { cn } from "@/lib/utils";
 import { useGarage } from "@/lib/garage-store";
-import { Button } from "./ui";
 
 const NAV = [
     {
         to: "/dashboard",
         label: "Dashboard",
+        short: "Início",
         icon: Gauge,
     },
     {
         to: "/clientes",
         label: "Clientes",
+        short: "Clientes",
         icon: User,
     },
     {
         to: "/veiculos",
         label: "Veículos",
+        short: "Veículos",
         icon: Car,
     },
     {
         to: "/ordens-servico",
         label: "Ordens de Serviço",
+        short: "Ordens",
         icon: ClipboardList,
     },
 ];
@@ -46,11 +47,11 @@ export function Brand({ compact = false }) {
 
             {!compact && (
                 <div className="leading-none">
-                    <p className="heading text-lg text-bone">
+                    <p className="heading text-base text-bone">
                         Vértice Auto
                     </p>
 
-                    <p className="heading text-[0.7rem] tracking-[0.3em] text-burnt-red">
+                    <p className="heading mt-1 text-[0.62rem] tracking-[0.3em] text-burnt-red">
                         Center
                     </p>
                 </div>
@@ -59,100 +60,136 @@ export function Brand({ compact = false }) {
     );
 }
 
-function NavItems({ onNavigate }) {
+/** Barra superior fixa: marca, navegação em "pílula" e conta do usuário. */
+function TopBar() {
+    const { user, logout } = useGarage();
+    const navigate = useNavigate();
     const pathname = useLocation().pathname;
 
     return (
-        <nav className="relative z-10 flex flex-col gap-1 px-3">
-            {NAV.map(({ to, label, icon: Icon }) => {
-                const active = pathname === to;
+        <header className="sticky top-0 z-40 border-b border-line bg-ink/85 backdrop-blur-md">
+            <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+                <Link to="/dashboard" aria-label="Ir para o dashboard">
+                    <Brand />
+                </Link>
 
-                return (
+                <nav
+                    aria-label="Navegação principal"
+                    className="hidden items-center gap-1 rounded-full border border-line bg-panel/80 p-1 lg:flex"
+                >
+                    {NAV.map(({ to, label, icon: Icon }) => {
+                        const active = pathname === to;
+
+                        return (
+                            <Link
+                                key={to}
+                                to={to}
+                                className={cn(
+                                    "flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-colors",
+
+                                    active
+                                        ? "bg-burnt-red text-bone-bright"
+                                        : "text-steel hover:text-bone"
+                                )}
+                            >
+                                <Icon className="h-4 w-4" />
+
+                                {label}
+                            </Link>
+                        );
+                    })}
+                </nav>
+
+                <div className="flex items-center gap-2">
                     <Link
-                        key={to}
-                        to={to}
-                        onClick={onNavigate}
+                        to="/profile"
+                        aria-label="Abrir perfil"
                         className={cn(
-                            "group relative flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm transition-colors",
+                            "flex items-center gap-3 rounded-full border py-1 pl-1 pr-1 transition-colors sm:pr-4",
 
-                            active
-                                ? "bg-panel-2 text-bone"
-                                : "text-steel hover:bg-panel-2/60 hover:text-bone"
+                            pathname === "/profile"
+                                ? "border-burnt-red bg-panel-2"
+                                : "border-line hover:border-steel"
                         )}
                     >
-                        <span
-                            className={cn(
-                                "absolute left-0 top-1/2 h-6 w-0.75 -translate-y-1/2 bg-burnt-red transition-transform duration-200",
-
-                                active
-                                    ? "scale-y-100"
-                                    : "scale-y-0 group-hover:scale-y-100"
-                            )}
+                        <Avatar
+                            name={user?.nome}
+                            className="h-8 w-8 text-xs"
                         />
 
-                        <Icon
-                            className={cn(
-                                "h-4 w-4 transition-colors",
+                        <span className="hidden text-left leading-tight sm:block">
+                            <span className="block text-sm text-bone">
+                                {user?.nome ?? "Visitante"}
+                            </span>
 
-                                active
-                                    ? "text-burnt-red"
-                                    : "text-steel group-hover:text-bone"
-                            )}
-                        />
-
-                        {label}
+                            <span className="stencil block text-[0.6rem] text-steel">
+                                {user?.cargo ?? "—"}
+                            </span>
+                        </span>
                     </Link>
-                );
-            })}
-        </nav>
+
+                    <button
+                        type="button"
+                        aria-label="Sair"
+                        title="Sair"
+                        onClick={() => {
+                            logout();
+                            navigate("/");
+                        }}
+                        className="flex h-10 w-10 items-center justify-center rounded-full border border-line text-steel transition-colors hover:border-burnt-red hover:text-burnt-red"
+                    >
+                        <Logout className="h-4 w-4" />
+                    </button>
+                </div>
+            </div>
+        </header>
     );
 }
 
-function SidebarContent({ onNavigate }) {
-    const { logout } = useGarage();
-    const navigate = useNavigate();
+/** Navegação inferior, exibida somente em telas pequenas. */
+function BottomNav() {
+    const pathname = useLocation().pathname;
+
+    const items = [
+        ...NAV,
+        {
+            to: "/profile",
+            label: "Perfil",
+            short: "Perfil",
+            icon: Settings2,
+        },
+    ];
 
     return (
-        <div className="grain flex h-full flex-col border-r border-line bg-ink">
+        <nav
+            aria-label="Navegação principal"
+            className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-ink/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden"
+        >
+            <ul className="mx-auto grid max-w-lg grid-cols-5">
+                {items.map(({ to, short, icon: Icon }) => {
+                    const active = pathname === to;
 
-            {/* Logo */}
-            <div className="relative z-10 border-b border-line px-5 py-5">
-                <Brand />
-            </div>
+                    return (
+                        <li key={to}>
+                            <Link
+                                to={to}
+                                className={cn(
+                                    "flex flex-col items-center gap-1 px-1 py-2.5 text-[0.62rem] font-semibold uppercase tracking-wider transition-colors",
 
-            {/* Navegação */}
-            <div className="relative z-10 flex-1 overflow-y-auto py-5">
-                <NavItems onNavigate={onNavigate} />
-            </div>
+                                    active
+                                        ? "text-burnt-red"
+                                        : "text-steel hover:text-bone"
+                                )}
+                            >
+                                <Icon className="h-5 w-5" />
 
-            {/* Área inferior */}
-            <div className="relative z-10 space-y-1 border-t border-line px-3 py-4">
-
-                <Link
-                    to="/profile"
-                    onClick={onNavigate}
-                    className="flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm text-steel transition-colors hover:bg-panel-2/60 hover:text-bone"
-                >
-                    <Settings2 className="h-4 w-4" />
-                    Configurações
-                </Link>
-
-                <button
-                    onClick={() => {
-                        logout();
-                        navigate("/");
-                    }}
-                    className="flex w-full items-center gap-3 rounded-sm px-3 py-2.5 text-sm text-steel transition-colors hover:bg-burnt-red/10 hover:text-burnt-red"
-                >
-                    <Logout className="h-4 w-4" />
-                    Sair
-                </button>
-
-                <p className="stencil px-3 pt-3 text-steel/60">
-                    Precisão em cada serviço.
-                </p>
-            </div>
-        </div>
+                                {short}
+                            </Link>
+                        </li>
+                    );
+                })}
+            </ul>
+        </nav>
     );
 }
 
@@ -162,108 +199,50 @@ export function AppLayout({
     actions,
     children,
 }) {
-    const { user } = useGarage();
-    const [open, setOpen] = useState(false);
-
     return (
-        <div className="min-h-screen bg-garage-black">
+        <div className="relative min-h-screen overflow-x-clip bg-garage-black pb-24 lg:pb-0">
+            <div
+                aria-hidden="true"
+                className="shell-glow pointer-events-none absolute inset-x-0 top-0 h-96"
+            />
 
-            {/* Sidebar desktop */}
-            <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 lg:block">
-                <SidebarContent />
-            </aside>
+            <TopBar />
 
-            {/* Sidebar mobile */}
-            {open && (
-                <div className="fixed inset-0 z-50 lg:hidden">
+            <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                {/* Cabeçalho da página */}
+                <div className="flex flex-col gap-5 pb-5 pt-8 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <p className="stencil text-burnt-red">
+                            Vértice Auto Center
+                        </p>
 
-                    {/* Overlay */}
-                    <div
-                        className="absolute inset-0 bg-ink/80"
-                        onClick={() => setOpen(false)}
-                    />
+                        <h1 className="heading mt-2 text-3xl text-bone sm:text-4xl">
+                            {title}
+                        </h1>
 
-                    {/* Menu */}
-                    <div className="absolute inset-y-0 left-0 w-64 animate-in slide-in-from-left duration-200">
-                        <SidebarContent
-                            onNavigate={() => setOpen(false)}
-                        />
+                        {subtitle && (
+                            <p className="mt-2 text-sm text-steel">
+                                {subtitle}
+                            </p>
+                        )}
                     </div>
-                </div>
-            )}
 
-            {/* Conteúdo principal */}
-            <div className="lg:pl-64">
-
-                {/* Header */}
-                <header className="grain sticky top-0 z-30 border-b border-line bg-ink/95 backdrop-blur">
-
-                    <div className="relative z-10 flex items-center justify-between gap-4 px-4 py-4 sm:px-6">
-
-                        {/* Título */}
-                        <div className="flex items-center gap-3">
-
-                            {/* Menu mobile */}
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="lg:hidden"
-                                aria-label={
-                                    open
-                                        ? "Fechar menu"
-                                        : "Abrir menu"
-                                }
-                                onClick={() => setOpen((value) => !value)}
-                            >
-                                {open ? (
-                                    <X className="h-5 w-5" />
-                                ) : (
-                                    <Menu className="h-5 w-5" />
-                                )}
-                            </Button>
-
-                            <div>
-                                <h1 className="heading text-2xl text-bone">
-                                    {title}
-                                </h1>
-
-                                {subtitle && (
-                                    <p className="text-xs text-steel">
-                                        {subtitle}
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Usuário / ações */}
-                        <div className="flex items-center gap-4">
-
+                    {actions ? (
+                        <div className="flex flex-wrap items-center gap-3">
                             {actions}
-
-                            <div className="hidden text-right sm:block">
-
-                                <p className="text-sm text-bone">
-                                    Olá, {user?.nome ?? "Visitante"}
-                                </p>
-
-                                <p className="stencil text-steel">
-                                    {user?.cargo ?? "—"}
-                                </p>
-
-                            </div>
                         </div>
-                    </div>
+                    ) : null}
+                </div>
 
-                    {/* Linha decorativa */}
-                    <div className="hatch h-0.75 w-full opacity-40" />
-                </header>
+                <div className="hatch mb-8 h-0.75 w-24 rounded-full opacity-70" />
 
                 {/* Conteúdo das páginas */}
-                <main className="px-4 py-6 sm:px-6 lg:px-8">
+                <main className="pb-12">
                     {children}
                 </main>
-
             </div>
+
+            <BottomNav />
         </div>
     );
 }

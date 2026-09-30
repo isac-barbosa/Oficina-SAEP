@@ -44,34 +44,83 @@ select {
     font: inherit;
 }
 
-.heading {
-    font-family: var(--font-heading);
-    font-weight: 700;
-    letter-spacing: 0.01em;
-    line-height: 1.1;
-    text-transform: uppercase;
+/*
+ * Classes de componente ficam na camada "components" para que as utilities
+ * do Tailwind (tracking-*, text-*, leading-*) consigam sobrescrevê-las.
+ */
+@layer components {
+    .heading {
+        font-family: var(--font-heading);
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        line-height: 1.1;
+        text-transform: uppercase;
+    }
+
+    .stencil {
+        font-family: var(--font-heading);
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        line-height: 1.5;
+        text-transform: uppercase;
+    }
+
+    .grain {
+        isolation: isolate;
+    }
+
+    .grain::before {
+        position: absolute;
+        z-index: 0;
+        pointer-events: none;
+        inset: 0;
+        border-radius: inherit;
+        background-image: repeating-linear-gradient(0deg, rgb(255 255 255 / 1.2%) 0, rgb(255 255 255 / 1.2%) 1px, transparent 1px, transparent 3px);
+        content: "";
+    }
+
+    /* Faixa diagonal decorativa na cor de destaque */
+    .hatch {
+        background-image: repeating-linear-gradient(135deg, var(--color-burnt-red) 0 6px, transparent 6px 12px);
+    }
+
+    /* Brilho suave no topo das telas internas */
+    .shell-glow {
+        background: radial-gradient(60rem 22rem at 50% -4rem, color-mix(in oklab, var(--color-burnt-red) 16%, transparent), transparent 70%);
+    }
+
+    /* Brilho do fundo do login */
+    .login-glow {
+        background: radial-gradient(circle at 50% 30%, color-mix(in oklab, var(--color-burnt-red) 16%, transparent), transparent 60%);
+    }
 }
 
-.stencil {
-    font-family: var(--font-heading);
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    line-height: 1.5;
-    text-transform: uppercase;
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
-.grain {
-    isolation: isolate;
+@keyframes drawer-in {
+    from { opacity: 0; transform: translateX(2.5rem); }
+    to { opacity: 1; transform: translateX(0); }
 }
 
-.grain::before {
-    position: absolute;
-    z-index: 0;
-    pointer-events: none;
-    inset: 0;
-    background-image: repeating-linear-gradient(0deg, rgb(255 255 255 / 1.2%) 0, rgb(255 255 255 / 1.2%) 1px, transparent 1px, transparent 3px);
-    content: "";
+@keyframes pop-in {
+    from { opacity: 0; transform: translateY(0.75rem) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.anim-fade {
+    animation: fade-in 180ms ease-out both;
+}
+
+.anim-drawer {
+    animation: drawer-in 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.anim-pop {
+    animation: pop-in 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 ::selection {

@@ -4,13 +4,11 @@ import { AppLayout } from "@/components/garage/layout";
 import { CountUp, Reveal } from "@/components/garage/motion";
 import {
     Card,
-    Cell,
-    Row,
+    EmptyState,
     SectionTitle,
     StatusBadge,
-    Table,
 } from "@/components/garage/ui";
-import { formatCurrency, formatDate } from "@/lib/garage-data";
+import { dateParts, formatCurrency } from "@/lib/garage-data";
 import { useGarage } from "@/lib/garage-store";
 
 
@@ -59,57 +57,93 @@ export default function Dashboard() {
         (o) => o.status === "EM ANDAMENTO"
     ).length;
 
+    const ticketMedio = orders.length
+        ? orders.reduce((s, o) => s + o.valor, 0) / orders.length
+        : 0;
+
     return (
         <AppLayout
             title="Dashboard"
             subtitle="Painel geral da oficina"
         >
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {/* Destaque: faturamento e ordens na bancada */}
+            <Reveal>
+                <Card className="grain overflow-hidden p-6 sm:p-8">
+                    <div className="relative z-10 grid grid-cols-1 gap-8 md:grid-cols-3">
+                        <div className="md:col-span-2">
+                            <p className="stencil text-steel">
+                                Faturamento concluído
+                            </p>
+
+                            <p className="heading mt-3 text-4xl text-bone sm:text-6xl">
+                                {formatCurrency(faturamento)}
+                            </p>
+
+                            <p className="mt-3 text-sm text-steel">
+                                Ticket médio por ordem:{" "}
+                                <span className="text-bone">
+                                    {formatCurrency(ticketMedio)}
+                                </span>
+                            </p>
+                        </div>
+
+                        <div className="rounded-2xl border border-burnt-red/40 bg-burnt-red/10 p-5">
+                            <p className="stencil text-burnt-red">
+                                Na bancada agora
+                            </p>
+
+                            <p className="heading mt-2 text-5xl text-bone">
+                                <CountUp value={emAndamento} />
+                            </p>
+
+                            <p className="mt-1 text-xs text-steel">
+                                ordens em andamento
+                            </p>
+                        </div>
+                    </div>
+                </Card>
+            </Reveal>
+
+            {/* Indicadores */}
+            <div className="mt-6 grid grid-cols-2 gap-4 xl:grid-cols-4">
                 {stats.map((s, i) => (
                     <Reveal
                         key={s.label}
-                        delay={i * 0.08}
+                        delay={0.1 + i * 0.07}
                     >
-                        <Card interactive className="grain h-full p-5">
-                            <div className="relative z-10 flex items-start justify-between">
-                                <div>
-                                    <p className="stencil text-steel">
-                                        {s.label}
-                                    </p>
+                        <Card interactive className="h-full p-4 sm:p-5">
+                            <div className="flex items-center gap-3">
+                                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-burnt-red/10 text-burnt-red">
+                                    <s.icon className="h-5 w-5" />
+                                </span>
 
-                                    <p className="heading mt-2 text-4xl text-bone">
-                                        <CountUp value={s.value} />
-                                    </p>
-                                </div>
-
-                                <s.icon className="h-6 w-6 text-burnt-red" />
+                                <p className="stencil text-steel">
+                                    {s.label}
+                                </p>
                             </div>
 
-                            <div className="hatch relative z-10 mt-4 h-0.75 w-14 opacity-60" />
+                            <p className="heading mt-4 text-4xl text-bone">
+                                <CountUp value={s.value} />
+                            </p>
                         </Card>
                     </Reveal>
                 ))}
             </div>
 
-            <div className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-3">
-                <Reveal
-                    delay={0.3}
-                    className="xl:col-span-2"
-                >
-                    <SectionTitle
-                        title="Próximos serviços"
-                        hint="ordenado por data"
-                    />
+            {/* Linha do tempo dos próximos serviços */}
+            <Reveal delay={0.4} className="mt-10">
+                <SectionTitle
+                    title="Próximos serviços"
+                    hint="ordenado por data"
+                />
 
-                    <Table
-                        head={[
-                            "Data",
-                            "Cliente",
-                            "Veículo",
-                            "Serviço",
-                            "Status",
-                        ]}
-                    >
+                {proximos.length === 0 ? (
+                    <EmptyState
+                        title="Nenhum serviço agendado"
+                        description="Quando houver ordens pendentes ou em andamento, elas aparecem aqui."
+                    />
+                ) : (
+                    <ol className="space-y-3">
                         {proximos.map((o) => {
                             const client = clients.find(
                                 (c) => c.id === o.clientId
@@ -119,78 +153,39 @@ export default function Dashboard() {
                                 (v) => v.id === o.vehicleId
                             );
 
+                            const { day, month } = dateParts(o.data);
+
                             return (
-                                <Row key={o.id}>
-                                    <Cell className="font-mono text-xs text-steel">
-                                        {formatDate(o.data)}
-                                    </Cell>
+                                <li key={o.id}>
+                                    <Card className="flex items-center gap-4 p-4 sm:gap-5">
+                                        <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl border border-line bg-ink">
+                                            <span className="heading text-lg text-bone">
+                                                {day}
+                                            </span>
 
-                                    <Cell>
-                                        {client?.nome ?? "—"}
-                                    </Cell>
+                                            <span className="stencil text-[0.6rem] text-burnt-red">
+                                                {month}
+                                            </span>
+                                        </div>
 
-                                    <Cell className="text-bone/70">
-                                        {vehicle?.modelo ?? "—"}
-                                    </Cell>
+                                        <div className="min-w-0 flex-1">
+                                            <p className="truncate text-bone">
+                                                {o.servico}
+                                            </p>
 
-                                    <Cell>{o.servico}</Cell>
+                                            <p className="truncate text-xs text-steel">
+                                                {client?.nome ?? "—"} · {vehicle?.modelo ?? "—"}
+                                            </p>
+                                        </div>
 
-                                    <Cell>
                                         <StatusBadge status={o.status} />
-                                    </Cell>
-                                </Row>
+                                    </Card>
+                                </li>
                             );
                         })}
-                    </Table>
-                </Reveal>
-
-                <Reveal delay={0.4}>
-                    <SectionTitle title="Resumo" />
-
-                    <div className="space-y-4">
-                        <Card className="grain p-5">
-                            <p className="stencil relative z-10 text-steel">
-                                Faturamento concluído
-                            </p>
-
-                            <p className="heading relative z-10 mt-2 text-3xl text-bone">
-                                {formatCurrency(faturamento)}
-                            </p>
-                        </Card>
-
-                        <Card className="p-5">
-                            <p className="stencil text-steel">
-                                Na bancada agora
-                            </p>
-
-                            <p className="heading mt-2 text-3xl text-burnt-red">
-                                <CountUp value={emAndamento} />
-                            </p>
-
-                            <p className="mt-1 text-xs text-steel">
-                                ordens em andamento
-                            </p>
-                        </Card>
-
-                        <Card className="p-5">
-                            <p className="stencil text-steel">
-                                Ticket médio
-                            </p>
-
-                            <p className="heading mt-2 text-3xl text-bone">
-                                {formatCurrency(
-                                    orders.length
-                                        ? orders.reduce(
-                                            (s, o) => s + o.valor,
-                                            0
-                                        ) / orders.length
-                                        : 0
-                                )}
-                            </p>
-                        </Card>
-                    </div>
-                </Reveal>
-            </div>
+                    </ol>
+                )}
+            </Reveal>
         </AppLayout>
     );
 }

@@ -6,18 +6,17 @@ import { Reveal } from "@/components/garage/motion";
 import { ConfirmDialog, Modal } from "@/components/garage/overlay";
 import {
     Button,
-    Cell,
+    Card,
     EmptyState,
     Input,
-    Row,
     SectionTitle,
     Select,
     StatusBadge,
-    Table,
     Textarea,
 } from "@/components/garage/ui";
 import {
     STATUS_LABEL,
+    dateParts,
     formatCurrency,
     formatDate,
 } from "@/lib/garage-data";
@@ -127,17 +126,7 @@ export default function Orders() {
                         description="Crie uma nova ordem de serviço."
                     />
                 ) : (
-                    <Table
-                        head={[
-                            "Data",
-                            "Cliente",
-                            "Veículo",
-                            "Serviço",
-                            "Valor",
-                            "Status",
-                            "",
-                        ]}
-                    >
+                    <ul className="space-y-3">
                         {lista.map((o) => {
                             const client = clients.find(
                                 (c) => c.id === o.clientId
@@ -147,38 +136,52 @@ export default function Orders() {
                                 (v) => v.id === o.vehicleId
                             );
 
+                            const { day, month } = dateParts(o.data);
+
                             return (
-                                <Row key={o.id}>
-                                    <Cell className="font-mono text-xs text-steel">
-                                        {formatDate(o.data)}
-                                    </Cell>
+                                <li key={o.id}>
+                                    <Card interactive className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:gap-5 sm:p-5">
+                                        <div
+                                            className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-xl border border-line bg-ink"
+                                            title={formatDate(o.data)}
+                                        >
+                                            <span className="heading text-xl text-bone">
+                                                {day}
+                                            </span>
 
-                                    <Cell>{client?.nome ?? "—"}</Cell>
+                                            <span className="stencil text-[0.62rem] text-burnt-red">
+                                                {month}
+                                            </span>
+                                        </div>
 
-                                    <Cell className="text-bone/70">
-                                        {vehicle
-                                            ? `${vehicle.modelo} · ${vehicle.placa}`
-                                            : "—"}
-                                    </Cell>
+                                        <div className="min-w-0 flex-1">
+                                            <p className="font-medium text-bone">
+                                                {o.servico}
+                                            </p>
 
-                                    <Cell>
-                                        <span className="block">
-                                            {o.servico}
-                                        </span>
-                                        <span className="block text-xs text-steel">
-                                            {o.descricao}
-                                        </span>
-                                    </Cell>
+                                            {o.descricao ? (
+                                                <p className="mt-0.5 text-xs text-steel">
+                                                    {o.descricao}
+                                                </p>
+                                            ) : null}
 
-                                    <Cell className="font-mono text-xs">
-                                        {formatCurrency(o.valor)}
-                                    </Cell>
+                                            <p className="mt-2 text-xs text-bone/70">
+                                                {client?.nome ?? "—"}
+                                                {" · "}
+                                                {vehicle
+                                                    ? `${vehicle.modelo} · ${vehicle.placa}`
+                                                    : "—"}
+                                            </p>
+                                        </div>
 
-                                    <Cell>
-                                        <StatusBadge status={o.status} />
-                                    </Cell>
+                                        <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end sm:justify-center sm:gap-2">
+                                            <span className="heading text-lg text-bone">
+                                                {formatCurrency(o.valor)}
+                                            </span>
 
-                                    <Cell className="text-right">
+                                            <StatusBadge status={o.status} />
+                                        </div>
+
                                         <div className="flex justify-end gap-1">
                                             <Button
                                                 variant="ghost"
@@ -198,11 +201,11 @@ export default function Orders() {
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
                                         </div>
-                                    </Cell>
-                                </Row>
+                                    </Card>
+                                </li>
                             );
                         })}
-                    </Table>
+                    </ul>
                 )}
             </Reveal>
 

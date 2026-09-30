@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Pen as Pencil, Plus, Search, Trash2 } from "reicon-react";
+import { Pen as Pencil, Plus, Trash2 } from "reicon-react";
 import { AppLayout } from "@/components/garage/layout";
 import { Reveal } from "@/components/garage/motion";
 import { ConfirmDialog, Modal } from "@/components/garage/overlay";
@@ -8,6 +8,7 @@ import {
     Card,
     EmptyState,
     Input,
+    SearchBar,
     SectionTitle,
     Select,
 } from "@/components/garage/ui";
@@ -69,17 +70,13 @@ export default function Vehicles() {
             }
         >
             <Reveal>
-                <Card className="mb-6 flex items-center gap-3 px-4 py-3">
-                    <Search className="h-4 w-4 text-steel" />
-
-                    <input
-                        aria-label="Pesquisar veículos"
-                        value={busca}
-                        onChange={(e) => setBusca(e.target.value)}
-                        placeholder="Pesquisar por placa, marca ou modelo"
-                        className="w-full bg-transparent text-sm text-bone placeholder:text-steel/70 focus:outline-none"
-                    />
-                </Card>
+                <SearchBar
+                    className="mb-8 max-w-xl"
+                    label="Pesquisar veículos"
+                    value={busca}
+                    onChange={setBusca}
+                    placeholder="Pesquisar por placa, marca ou modelo"
+                />
 
                 <SectionTitle
                     title="Frota"
@@ -92,7 +89,7 @@ export default function Vehicles() {
                         description="Cadastre um veículo e vincule a um cliente."
                     />
                 ) : (
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    <ul className="space-y-3">
                         {lista.map((v, i) => {
                             const client = clients.find((c) => c.id === v.clientId);
                             const total = orders.filter(
@@ -100,60 +97,62 @@ export default function Vehicles() {
                             ).length;
 
                             return (
-                                <Reveal key={v.id} delay={i * 0.05}>
-                                    <Card interactive className="grain h-full p-5">
-                                        <div className="relative z-10">
-                                            <p className="heading text-xl text-bone">
+                                <Reveal as="li" key={v.id} delay={i * 0.04}>
+                                    <Card interactive className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:gap-6 sm:p-5">
+                                        <div className="inline-flex w-fit items-center rounded-lg border-2 border-bone/70 bg-ink px-4 py-2 font-mono text-base tracking-[0.25em] text-bone">
+                                            {v.placa}
+                                        </div>
+
+                                        <div className="min-w-0 flex-1">
+                                            <p className="heading text-lg text-bone">
                                                 {v.modelo}
                                             </p>
 
                                             <p className="stencil text-burnt-red">
                                                 {v.marca} · {v.ano}
                                             </p>
+                                        </div>
 
-                                            <div className="mt-4 inline-flex items-center rounded-sm border border-line bg-ink px-3 py-1 font-mono text-sm tracking-[0.2em] text-bone">
-                                                {v.placa}
-                                            </div>
-
-                                            <p className="mt-4 text-sm text-steel">
+                                        <div className="text-sm text-steel sm:text-right">
+                                            <p>
                                                 Cliente:{" "}
                                                 <span className="text-bone/90">
                                                     {client?.nome ?? "—"}
                                                 </span>
                                             </p>
 
-                                            <p className="text-sm text-steel">
+                                            <p>
                                                 Ordens:{" "}
                                                 <span className="text-bone/90">
                                                     {total}
                                                 </span>
                                             </p>
+                                        </div>
 
-                                            <div className="mt-5 flex gap-2">
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => setForm(v)}
-                                                >
-                                                    <Pencil className="h-3.5 w-3.5" />
-                                                    Editar
-                                                </Button>
+                                        <div className="flex gap-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setForm(v)}
+                                            >
+                                                <Pencil className="h-3.5 w-3.5" />
+                                                Editar
+                                            </Button>
 
-                                                <Button
-                                                    variant="danger"
-                                                    size="sm"
-                                                    onClick={() => setExcluir(v)}
-                                                >
-                                                    <Trash2 className="h-3.5 w-3.5" />
-                                                    Excluir
-                                                </Button>
-                                            </div>
+                                            <Button
+                                                variant="danger"
+                                                size="sm"
+                                                onClick={() => setExcluir(v)}
+                                            >
+                                                <Trash2 className="h-3.5 w-3.5" />
+                                                Excluir
+                                            </Button>
                                         </div>
                                     </Card>
                                 </Reveal>
                             );
                         })}
-                    </div>
+                    </ul>
                 )}
             </Reveal>
 

@@ -1,8 +1,8 @@
-create schema saep_db;
+CREATE SCHEMA saep_db;
 
-use saep_db;
+USE saep_db;
 
-create table users (
+CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
@@ -11,7 +11,7 @@ create table users (
     role ENUM('admin', 'user') NOT NULL DEFAULT 'user'
 );
 
-create table clientes (
+CREATE TABLE clientes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     cpf VARCHAR(14) NOT NULL UNIQUE,
@@ -21,7 +21,7 @@ create table clientes (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-create table veiculos (
+CREATE TABLE veiculos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     cliente_id INT NOT NULL,
     placa VARCHAR(10) NOT NULL UNIQUE,
@@ -37,19 +37,24 @@ create table veiculos (
         ON UPDATE CASCADE
 );
 
-create table ordens_servicos (
+CREATE TABLE ordens_servicos (
     id INT AUTO_INCREMENT PRIMARY KEY,
+
     cliente_id INT NOT NULL,
     veiculo_id INT NOT NULL,
+    usuario_id INT NOT NULL,
+
     descricao TEXT NOT NULL,
     valor DECIMAL(10, 2) NOT NULL,
     data_agendamento DATETIME NOT NULL,
+
     status ENUM(
         'Agendada',
         'Em Andamento',
         'Concluida',
         'Cancelada'
     ) DEFAULT 'Agendada',
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_os_cliente
@@ -62,6 +67,11 @@ create table ordens_servicos (
         FOREIGN KEY (veiculo_id)
         REFERENCES veiculos(id)
         ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
+    CONSTRAINT fk_os_usuario
+        FOREIGN KEY (usuario_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
         ON UPDATE CASCADE
 );
-

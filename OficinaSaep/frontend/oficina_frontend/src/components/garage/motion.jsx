@@ -14,6 +14,7 @@ const reduced = () => {
  * com delay para criar efeito stagger.
  */
 export function Reveal({
+    as: Tag = "div",
     children,
     delay = 0,
     className,
@@ -43,12 +44,12 @@ export function Reveal({
     }, [delay]);
 
     return (
-        <div
+        <Tag
             ref={ref}
             className={cn("opacity-0", className)}
         >
             {children}
-        </div>
+        </Tag>
     );
 }
 

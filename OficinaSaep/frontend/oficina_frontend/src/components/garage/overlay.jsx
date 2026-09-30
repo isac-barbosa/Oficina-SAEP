@@ -1,14 +1,9 @@
 import { useEffect } from "react";
-import { X } from "reicon-react";
+import { Trash2, X } from "reicon-react";
 import { Button } from "./ui";
 
-export function Modal({
-    open,
-    title,
-    onClose,
-    children,
-    footer,
-}) {
+/** Fecha com ESC e trava a rolagem da página enquanto o painel está aberto. */
+function useOverlay(open, onClose) {
     useEffect(() => {
         if (!open) return;
 
@@ -18,18 +13,33 @@ export function Modal({
             }
         };
 
+        const previousOverflow = document.body.style.overflow;
+
         window.addEventListener("keydown", onKey);
+        document.body.style.overflow = "hidden";
 
         return () => {
             window.removeEventListener("keydown", onKey);
+            document.body.style.overflow = previousOverflow;
         };
     }, [open, onClose]);
+}
+
+/** Painel lateral (drawer) que desliza da direita. */
+export function Modal({
+    open,
+    title,
+    onClose,
+    children,
+    footer,
+}) {
+    useOverlay(open, onClose);
 
     if (!open) return null;
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink/80 p-4 py-10 backdrop-blur-[2px]"
+            className="anim-fade fixed inset-0 z-50 flex justify-end bg-garage-black/70 backdrop-blur-sm"
             role="dialog"
             aria-modal="true"
             aria-label={title}
@@ -37,11 +47,17 @@ export function Modal({
                 e.target === e.currentTarget && onClose()
             }
         >
-            <div className="grain w-full max-w-xl animate-in fade-in slide-in-from-bottom-2 rounded-sm border border-line bg-panel duration-200">
-                <div className="flex items-center justify-between border-b border-line px-5 py-4">
-                    <h3 className="heading text-lg text-bone">
-                        {title}
-                    </h3>
+            <aside className="anim-drawer flex h-full w-full max-w-lg flex-col border-l border-line bg-panel shadow-2xl">
+                <div className="flex items-center justify-between gap-4 border-b border-line px-6 py-5">
+                    <div className="min-w-0">
+                        <p className="stencil text-burnt-red">
+                            Vértice Auto Center
+                        </p>
+
+                        <h3 className="heading mt-1 truncate text-xl text-bone">
+                            {title}
+                        </h3>
+                    </div>
 
                     <Button
                         variant="ghost"
@@ -53,20 +69,21 @@ export function Modal({
                     </Button>
                 </div>
 
-                <div className="relative z-10 space-y-4 px-5 py-5">
+                <div className="flex-1 space-y-4 overflow-y-auto px-6 py-6">
                     {children}
                 </div>
 
                 {footer ? (
-                    <div className="flex justify-end gap-2 border-t border-line px-5 py-4">
+                    <div className="flex justify-end gap-2 border-t border-line bg-ink/40 px-6 py-4">
                         {footer}
                     </div>
                 ) : null}
-            </div>
+            </aside>
         </div>
     );
 }
 
+/** Diálogo de confirmação centralizado. */
 export function ConfirmDialog({
     open,
     title = "Confirmar exclusão",
@@ -74,13 +91,34 @@ export function ConfirmDialog({
     onCancel,
     onConfirm,
 }) {
+    useOverlay(open, onCancel);
+
+    if (!open) return null;
+
     return (
-        <Modal
-            open={open}
-            title={title}
-            onClose={onCancel}
-            footer={
-                <>
+        <div
+            className="anim-fade fixed inset-0 z-50 flex items-center justify-center bg-garage-black/70 p-4 backdrop-blur-sm"
+            role="alertdialog"
+            aria-modal="true"
+            aria-label={title}
+            onMouseDown={(e) =>
+                e.target === e.currentTarget && onCancel()
+            }
+        >
+            <div className="anim-pop w-full max-w-sm rounded-2xl border border-line bg-panel p-6 text-center shadow-2xl">
+                <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-burnt-red/50 bg-burnt-red/10 text-burnt-red">
+                    <Trash2 className="h-5 w-5" />
+                </span>
+
+                <h3 className="heading mt-4 text-lg text-bone">
+                    {title}
+                </h3>
+
+                <p className="mt-2 text-sm text-steel">
+                    {message}
+                </p>
+
+                <div className="mt-6 grid grid-cols-2 gap-2">
                     <Button variant="outline" onClick={onCancel}>
                         Cancelar
                     </Button>
@@ -88,12 +126,8 @@ export function ConfirmDialog({
                     <Button variant="primary" onClick={onConfirm}>
                         Excluir
                     </Button>
-                </>
-            }
-        >
-            <p className="text-sm text-bone/80">
-                {message}
-            </p>
-        </Modal>
+                </div>
+            </div>
+        </div>
     );
 }

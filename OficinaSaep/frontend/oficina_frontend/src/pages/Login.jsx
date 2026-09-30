@@ -52,86 +52,102 @@ export default function Login() {
     };
 
     return (
-        <div className="grain relative min-h-screen bg-ink">
-            <EmberCanvas className="pointer-events-none absolute inset-0 h-full w-full opacity-70" />
+        <div className="grid min-h-screen grid-cols-1 bg-garage-black lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+            {/* Coluna do formulário */}
+            <div className="flex items-center justify-center px-6 py-12 sm:px-12">
+                <Reveal className="w-full max-w-sm">
+                    <div className="flex items-center gap-3">
+                        <BrandMark className="h-11 w-11" />
 
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_35%,color-mix(in_oklab,var(--burnt-red)_18%,transparent),transparent_60%)]" />
+                        <div className="leading-none">
+                            <p className="heading text-base text-bone">
+                                Vértice Auto
+                            </p>
 
-            <div className="relative z-10 mx-auto grid min-h-screen max-w-6xl grid-cols-1 items-center gap-10 px-6 py-12 lg:grid-cols-2">
-                <Reveal className="text-center lg:text-left">
-                    <BrandMark className="mx-auto h-40 w-40 drop-shadow-[0_18px_40px_rgba(0,0,0,0.6)] sm:h-48 sm:w-48 lg:mx-0" />
+                            <p className="heading mt-1 text-[0.62rem] tracking-[0.3em] text-burnt-red">
+                                Center
+                            </p>
+                        </div>
+                    </div>
 
-                    <h1 className="heading mt-6 text-5xl text-bone sm:text-6xl">
-                        Vértice Auto
+                    <p className="stencil mt-12 text-burnt-red">
+                        Acesso restrito
+                    </p>
+
+                    <h1 className="heading mt-2 text-4xl text-bone">
+                        Entrar no sistema
                     </h1>
 
-                    <p className="heading text-2xl tracking-[0.35em] text-burnt-red">
-                        Center
+                    <p className="mt-3 text-sm text-steel">
+                        Use suas credenciais para acompanhar clientes, veículos e ordens de serviço.
                     </p>
 
-                    <p className="stencil mt-4 text-steel">
-                        Diagnóstico · Manutenção · Revisão · Performance
-                    </p>
-                </Reveal>
+                    <form onSubmit={onSubmit} className="mt-8 space-y-4">
+                        <Input
+                            id="email"
+                            label="E-mail"
+                            type="email"
+                            autoComplete="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="voce@verticeauto.com"
+                        />
 
-                <Reveal delay={0.15}>
-                    <form
-                        onSubmit={onSubmit}
-                        className="mx-auto w-full max-w-md rounded-sm border border-line bg-panel/90 p-7 backdrop-blur"
-                    >
-                        <p className="stencil text-steel">Acesso restrito</p>
-
-                        <h2 className="heading mt-1 text-2xl text-bone">
-                            Entrar no sistema
-                        </h2>
-
-                        <div className="mt-6 space-y-4">
-                            <Input
-                                id="email"
-                                label="E-mail"
-                                type="email"
-                                autoComplete="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="voce@verticeauto.com"
-                            />
-
-                            <Input
-                                id="senha"
-                                label="Senha"
-                                type="password"
-                                autoComplete="current-password"
-                                value={senha}
-                                onChange={(e) => setSenha(e.target.value)}
-                                placeholder="••••••••"
-                            />
-                        </div>
+                        <Input
+                            id="senha"
+                            label="Senha"
+                            type="password"
+                            autoComplete="current-password"
+                            value={senha}
+                            onChange={(e) => setSenha(e.target.value)}
+                            placeholder="••••••••"
+                        />
 
                         {erro ? (
-                            <p role="alert" className="mt-4 text-xs text-burnt-red">
+                            <p
+                                role="alert"
+                                className="rounded-xl border border-burnt-red/40 bg-burnt-red/10 px-3 py-2 text-xs text-burnt-red"
+                            >
                                 {erro}
                             </p>
                         ) : null}
 
                         <Button
                             type="submit"
-                            className="mt-6 w-full"
+                            className="w-full"
                             disabled={loading}
                         >
                             {loading ? "Ligando o motor..." : "Entrar"}
                         </Button>
-
-                        <div className="mt-6 flex items-center justify-between border-t border-line pt-4">
-                            <span className="stencil text-steel/70">
-                                Vértice Auto Center
-                            </span>
-
-                            <span className="heading text-sm text-burnt-red">
-                                Sempre em movimento.
-                            </span>
-                        </div>
                     </form>
+
+                    <p className="stencil mt-10 text-steel/70">
+                        Vértice Auto Center · Sempre em movimento.
+                    </p>
                 </Reveal>
+            </div>
+
+            {/* Coluna da marca */}
+            <div className="login-glow relative hidden overflow-hidden border-l border-line bg-ink lg:block">
+                <EmberCanvas className="pointer-events-none absolute inset-0 h-full w-full opacity-70" />
+
+                <div className="relative z-10 flex h-full flex-col items-center justify-center px-12 text-center">
+                    <BrandMark className="h-52 w-52 drop-shadow-[0_18px_40px_rgba(0,0,0,0.6)]" />
+
+                    <h2 className="heading mt-8 text-6xl text-bone">
+                        Vértice Auto
+                    </h2>
+
+                    <p className="heading text-2xl tracking-[0.35em] text-burnt-red">
+                        Center
+                    </p>
+
+                    <div className="hatch my-8 h-0.75 w-24 rounded-full opacity-70" />
+
+                    <p className="stencil text-steel">
+                        Diagnóstico · Manutenção · Revisão · Performance
+                    </p>
+                </div>
             </div>
         </div>
     );
